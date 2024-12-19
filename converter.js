@@ -12,7 +12,7 @@ const statusMessage = document.getElementById('statusMessage');
 // Server configuration
 const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3001/convert'
-    : 'https://your-deployed-server-url.com/convert'; // Replace with your actual deployed server URL
+    : 'https://server-pv39.onrender.com/convert';
 
 // Handle file drop and click to upload
 fileInput.addEventListener('change', function(e) {
@@ -88,7 +88,7 @@ convertButton.addEventListener('click', async function() {
         const response = await fetch(SERVER_URL, {
             method: 'POST',
             body: formData,
-            mode: 'cors', // Explicitly state CORS mode
+            mode: 'cors',
             credentials: 'same-origin'
         });
 
@@ -102,10 +102,10 @@ convertButton.addEventListener('click', async function() {
             throw new Error(result.error || 'Conversion failed');
         }
 
-        // Update download URL construction
+        // Update server base URL
         const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3001'
-            : 'https://your-deployed-server-url.com'; // Replace with your actual deployed server URL
+            : 'https://server-pv39.onrender.com';
 
         // Create download link
         const a = document.createElement('a');
