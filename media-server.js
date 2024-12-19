@@ -13,7 +13,13 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 const app = express();
 app.use(cors({
-    origin: '*',
+    origin: [
+        'http://localhost:3000', 
+        'http://localhost:5500', 
+        'http://127.0.0.1:5500',
+        'https://your-actual-website-domain.com',  // Replace with your actual website domain
+        '*'  // Temporarily allow all origins while testing
+    ],
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
     credentials: false,
@@ -193,4 +199,16 @@ setInterval(() => {
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {  // Add host binding
     console.log(`Media processing server running on port ${PORT}`);
+});
+
+// Add health check endpoint
+app.get('/health', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Add error handling middleware at the end
+app.use((err, req, res, next) => {
+    console.error('Server Error:', err);
+    res.status(500).json({ error: err.message });
 }); 
