@@ -14,10 +14,10 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 const app = express();
 app.use(cors({
     origin: [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'https://your-github-pages-domain.com',  // Replace with your actual frontend domain
-        'https://your-hosted-domain.com'  // Replace with your actual backend domain
+        'http://localhost:1000',
+        'http://127.0.0.1:1000',
+        'https://your-github-pages-domain.com',
+        'https://your-hosted-domain.com'
     ],
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
@@ -179,7 +179,7 @@ setInterval(() => {
     });
 }, 60 * 60 * 1000); // Check every hour
 
-const PORT = process.env.PORT || 3000;  // This allows for platform-specific port while defaulting to 3000
+const PORT = process.env.PORT || 1000;  // Update port to 1000
 app.listen(PORT, '0.0.0.0', () => {  // Listen on all network interfaces
     console.log(`Media processing server running on port ${PORT}`);
 }); 
