@@ -85,7 +85,9 @@ convertButton.addEventListener('click', async function() {
     formData.append('file', file);
 
     try {
-        console.log('Sending request to:', SERVER_URL); // Debug log
+        console.log('Starting conversion request for:', file.name);
+        console.log('Server URL:', SERVER_URL);
+        
         const response = await fetch(SERVER_URL, {
             method: 'POST',
             body: formData,
@@ -96,35 +98,46 @@ convertButton.addEventListener('click', async function() {
             }
         });
 
-        console.log('Response status:', response.status); // Debug log
+        console.log('Response status:', response.status);
+        console.log('Response headers:', [...response.headers.entries()]);
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Server response:', errorText); // Debug log
-            throw new Error(`Server error: ${response.status} - ${errorText}`);
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Failed to parse JSON response:', e);
+            throw new Error('Invalid server response format');
         }
 
-        const result = await response.json();
-        console.log('Server result:', result); // Debug log
-        
         if (!result.success) {
-            throw new Error(result.error || 'Conversion failed');
+            throw new Error(result.error || result.details || 'Conversion failed');
         }
 
-        // Update server base URL
         const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:10000'
             : 'https://server-pv39.onrender.com';
 
-        // Create download link
         const downloadUrl = `${serverBaseUrl}${result.downloadUrl}`;
-        console.log('Download URL:', downloadUrl); // Debug log
-        
+        console.log('Download URL:', downloadUrl);
+
+        // Test download URL accessibility
+        try {
+            const testResponse = await fetch(downloadUrl, { method: 'HEAD' });
+            if (!testResponse.ok) {
+                throw new Error('Generated file is not accessible');
+            }
+        } catch (e) {
+            console.error('Download URL test failed:', e);
+            throw new Error('Cannot access converted file');
+        }
+
         const a = document.createElement('a');
         a.href = downloadUrl;
         a.download = file.name.replace(/\.(ppt|pptx)$/, '.pdf');
         
-        // Handle mobile devices differently
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             window.open(downloadUrl, '_blank');
         } else {
@@ -137,7 +150,7 @@ convertButton.addEventListener('click', async function() {
         showSuccess('Conversion completed! File downloaded.');
 
     } catch (error) {
-        console.error('Conversion error:', error);
+        console.error('Detailed conversion error:', error);
         showError(`Error: ${error.message}`);
     } finally {
         setTimeout(() => {
