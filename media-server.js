@@ -12,7 +12,12 @@ const convertAsync = util.promisify(libre.convert);
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:3001', 'http://127.0.0.1:3001', 'https://your-github-pages-domain.com'],
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+    credentials: false
+}));
 
 // Configure storage
 const storage = multer.diskStorage({
@@ -169,7 +174,7 @@ setInterval(() => {
     });
 }, 60 * 60 * 1000); // Check every hour
 
-const PORT = 3001;
-app.listen(PORT, () => {
-    console.log(`Media processing server running on http://localhost:${PORT}`);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Media processing server running on port ${PORT}`);
 }); 
