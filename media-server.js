@@ -12,20 +12,7 @@ const convertAsync = util.promisify(libre.convert);
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 const app = express();
-app.use(cors({
-    origin: [
-        'http://localhost:3000', 
-        'http://localhost:5500', 
-        'http://127.0.0.1:5500',
-        'https://your-actual-website-domain.com',  // Replace with your actual website domain
-        '*'  // Temporarily allow all origins while testing
-    ],
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
-    credentials: false,
-    preflightContinue: true,
-    optionsSuccessStatus: 204
-}));
+app.use(cors());
 
 // Configure storage
 const storage = multer.diskStorage({
@@ -119,50 +106,37 @@ app.post('/merge', upload.fields([
 
 // Update conversion endpoint
 app.post('/convert', upload.single('file'), async (req, res) => {
-    console.log('Received conversion request');
-    
     if (!req.file) {
-        console.log('No file received');
         return res.status(400).json({ error: 'No file provided' });
     }
 
-    console.log('File received:', req.file.originalname);
     const inputPath = req.file.path;
     const outputFileName = `converted-${Date.now()}.pdf`;
     const outputPath = path.join(__dirname, 'processed', outputFileName);
 
     try {
-        console.log('Reading file...');
+        // Read the file
         const file = await fs.promises.readFile(inputPath);
         
-        console.log('Converting to PDF...');
+        // Convert to PDF
         const pdfBuffer = await convertAsync(file, '.pdf', undefined);
         
-        console.log('Writing converted file...');
+        // Write the converted file
         await fs.promises.writeFile(outputPath, pdfBuffer);
 
-        console.log('Cleaning up input file...');
+        // Cleanup input file
         fs.unlink(inputPath, err => {
             if (err) console.error('Error cleaning up:', err);
         });
 
-        console.log('Conversion successful');
         res.json({
             success: true,
             downloadUrl: `/processed/${outputFileName}`,
             message: 'File converted successfully'
         });
     } catch (error) {
-        console.error('Detailed conversion error:', {
-            error: error.message,
-            stack: error.stack,
-            inputPath,
-            outputPath
-        });
-        res.status(500).json({ 
-            error: 'Failed to convert file',
-            details: error.message
-        });
+        console.error('Conversion error:', error);
+        res.status(500).json({ error: 'Failed to convert file: ' + error.message });
     }
 });
 
@@ -195,20 +169,7 @@ setInterval(() => {
     });
 }, 60 * 60 * 1000); // Check every hour
 
-// Update port configuration
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {  // Add host binding
-    console.log(`Media processing server running on port ${PORT}`);
-});
-
-// Add health check endpoint
-app.get('/health', (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// Add error handling middleware at the end
-app.use((err, req, res, next) => {
-    console.error('Server Error:', err);
-    res.status(500).json({ error: err.message });
+const PORT = 3001;
+app.listen(PORT, () => {
+    console.log(`Media processing server running on http://localhost:${PORT}`);
 }); 
