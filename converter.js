@@ -10,32 +10,7 @@ const progress = document.getElementById('progress');
 const statusMessage = document.getElementById('statusMessage');
 
 // Server configuration
-const SERVER_URL = 'https://server-pv39.onrender.com';
-
-// Add health check before conversion
-async function checkServerHealth() {
-    try {
-        console.log('Checking server health...');
-        const response = await fetch(`${SERVER_URL}/health`, {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-                'Accept': 'application/json',
-            }
-        });
-        
-        console.log('Health check response:', response.status);
-        if (!response.ok) {
-            throw new Error('Server is not responding');
-        }
-        const data = await response.json();
-        console.log('Server health:', data);
-        return true;
-    } catch (error) {
-        console.error('Server health check failed:', error);
-        return false;
-    }
-}
+const SERVER_URL = 'http://localhost:3001/convert';
 
 // Handle file drop and click to upload
 fileInput.addEventListener('change', function(e) {
@@ -104,81 +79,39 @@ convertButton.addEventListener('click', async function() {
     convertButton.disabled = true;
     progress.style.width = '50%';
 
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-        // Check server health first
-        const isServerHealthy = await checkServerHealth();
-        if (!isServerHealthy) {
-            throw new Error('Server is not available. Please try again later.');
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        console.log('Sending request to:', `${SERVER_URL}/convert`);
-        const response = await fetch(`${SERVER_URL}/convert`, {
+        const response = await fetch(SERVER_URL, {
             method: 'POST',
-            body: formData,
-            mode: 'cors',
-            credentials: 'omit',
-            headers: {
-                'Accept': 'application/json',
-            }
+            body: formData
         });
 
-        console.log('Response status:', response.status);
-        console.log('Response headers:', [...response.headers.entries()]);
-
-        const responseText = await response.text();
-        console.log('Raw response:', responseText);
-
-        let result;
-        try {
-            result = JSON.parse(responseText);
-        } catch (e) {
-            console.error('Failed to parse JSON response:', e);
-            throw new Error('Invalid server response format');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        const result = await response.json();
+    
         if (!result.success) {
-            throw new Error(result.error || result.details || 'Conversion failed');
+            throw new Error(result.error || 'Conversion failed');
         }
 
-        const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:10000'
-            : 'https://server-pv39.onrender.com';
-
-        const downloadUrl = `${serverBaseUrl}${result.downloadUrl}`;
-        console.log('Download URL:', downloadUrl);
-
-        // Test download URL accessibility
-        try {
-            const testResponse = await fetch(downloadUrl, { method: 'HEAD' });
-            if (!testResponse.ok) {
-                throw new Error('Generated file is not accessible');
-            }
-        } catch (e) {
-            console.error('Download URL test failed:', e);
-            throw new Error('Cannot access converted file');
-        }
-
+        // Download the converted file
         const a = document.createElement('a');
-        a.href = downloadUrl;
+        a.href = `http://localhost:3001${result.downloadUrl}`;
         a.download = file.name.replace(/\.(ppt|pptx)$/, '.pdf');
-        
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            window.open(downloadUrl, '_blank');
-        } else {
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
         progress.style.width = '100%';
         showSuccess('Conversion completed! File downloaded.');
 
     } catch (error) {
         console.error('Conversion error:', error);
-        showError(`Error: ${error.message}`);
+        showError(error.message || 'Error converting file');
     } finally {
         setTimeout(() => {
             progressBar.style.display = 'none';
