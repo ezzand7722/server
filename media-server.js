@@ -13,7 +13,7 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 const app = express();
 app.use(cors({
-    origin: ['https://your-github-pages-url.github.io', 'http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
     credentials: false
@@ -174,7 +174,7 @@ setInterval(() => {
     });
 }, 60 * 60 * 1000); // Check every hour
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`Media processing server running on http://localhost:${PORT}`);
 }); 
