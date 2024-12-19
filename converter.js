@@ -11,8 +11,8 @@ const statusMessage = document.getElementById('statusMessage');
 
 // Server configuration
 const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3001/convert'
-    : 'https://server-pv39.onrender.com/convert';
+    ? 'http://localhost:3000/convert'
+    : 'https://your-hosted-domain.com/convert';  // Replace with your actual hosted domain
 
 // Handle file drop and click to upload
 fileInput.addEventListener('change', function(e) {
@@ -102,14 +102,14 @@ convertButton.addEventListener('click', async function() {
 
         // Update download URL construction
         const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:3001'
-            : 'https://server-pv39.onrender.com';
+            ? 'http://localhost:3000'
+            : 'https://your-hosted-domain.com';  // Replace with your actual hosted domain
             
         const downloadUrl = `${serverBaseUrl}${result.downloadUrl}`;
         
         // Download the converted file
         const a = document.createElement('a');
-        a.href = downloadUrl;  // Use the constructed downloadUrl
+        a.href = downloadUrl;
         a.download = file.name.replace(/\.(ppt|pptx)$/, '.pdf');
         document.body.appendChild(a);
         a.click();
