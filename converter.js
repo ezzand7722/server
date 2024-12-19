@@ -85,6 +85,7 @@ convertButton.addEventListener('click', async function() {
     formData.append('file', file);
 
     try {
+        console.log('Sending request to:', SERVER_URL); // Debug log
         const response = await fetch(SERVER_URL, {
             method: 'POST',
             body: formData,
@@ -95,11 +96,16 @@ convertButton.addEventListener('click', async function() {
             }
         });
 
+        console.log('Response status:', response.status); // Debug log
+
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('Server response:', errorText); // Debug log
+            throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
 
         const result = await response.json();
+        console.log('Server result:', result); // Debug log
         
         if (!result.success) {
             throw new Error(result.error || 'Conversion failed');
@@ -111,16 +117,17 @@ convertButton.addEventListener('click', async function() {
             : 'https://server-pv39.onrender.com';
 
         // Create download link
+        const downloadUrl = `${serverBaseUrl}${result.downloadUrl}`;
+        console.log('Download URL:', downloadUrl); // Debug log
+        
         const a = document.createElement('a');
-        a.href = `${serverBaseUrl}${result.downloadUrl}`;
+        a.href = downloadUrl;
         a.download = file.name.replace(/\.(ppt|pptx)$/, '.pdf');
         
         // Handle mobile devices differently
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            // For mobile devices, open in new tab
-            window.open(a.href, '_blank');
+            window.open(downloadUrl, '_blank');
         } else {
-            // For desktop, trigger download
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -131,7 +138,7 @@ convertButton.addEventListener('click', async function() {
 
     } catch (error) {
         console.error('Conversion error:', error);
-        showError(error.message || 'Error converting file');
+        showError(`Error: ${error.message}`);
     } finally {
         setTimeout(() => {
             progressBar.style.display = 'none';
