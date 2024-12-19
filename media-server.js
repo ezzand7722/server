@@ -174,7 +174,8 @@ setInterval(() => {
     });
 }, 60 * 60 * 1000); // Check every hour
 
+// Update port configuration
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-    console.log(`Media processing server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {  // Add host binding
+    console.log(`Media processing server running on port ${PORT}`);
 }); 
