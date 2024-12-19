@@ -12,7 +12,12 @@ const convertAsync = util.promisify(libre.convert);
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
 
 // Configure storage
 const storage = multer.diskStorage({
@@ -169,7 +174,7 @@ setInterval(() => {
     });
 }, 60 * 60 * 1000); // Check every hour
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Media processing server running on http://localhost:${PORT}`);
 }); 
