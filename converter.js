@@ -12,7 +12,7 @@ const statusMessage = document.getElementById('statusMessage');
 // Server configuration
 const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:10000/convert'
-    : 'https://your-hosted-domain.com/convert';  // Replace with your actual hosted domain
+    : 'https://server-pv39.onrender.com/convert';  // Update with actual hosted domain
 
 // Handle file drop and click to upload
 fileInput.addEventListener('change', function(e) {
@@ -103,7 +103,7 @@ convertButton.addEventListener('click', async function() {
         // Update download URL construction
         const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:10000'
-            : 'https://your-hosted-domain.com';  // Replace with your actual hosted domain
+            : 'https://server-pv39.onrender.com';  // Update with actual hosted domain
             
         const downloadUrl = `${serverBaseUrl}${result.downloadUrl}`;
         
