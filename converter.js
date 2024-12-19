@@ -10,7 +10,9 @@ const progress = document.getElementById('progress');
 const statusMessage = document.getElementById('statusMessage');
 
 // Server configuration
-const SERVER_URL = 'http://localhost:3001/convert';
+const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3001/convert'
+    : 'https://your-deployed-server-url.com/convert'; // Replace with your actual deployed server URL
 
 // Handle file drop and click to upload
 fileInput.addEventListener('change', function(e) {
@@ -85,7 +87,9 @@ convertButton.addEventListener('click', async function() {
     try {
         const response = await fetch(SERVER_URL, {
             method: 'POST',
-            body: formData
+            body: formData,
+            mode: 'cors', // Explicitly state CORS mode
+            credentials: 'same-origin'
         });
 
         if (!response.ok) {
@@ -98,13 +102,26 @@ convertButton.addEventListener('click', async function() {
             throw new Error(result.error || 'Conversion failed');
         }
 
-        // Download the converted file
+        // Update download URL construction
+        const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3001'
+            : 'https://your-deployed-server-url.com'; // Replace with your actual deployed server URL
+
+        // Create download link
         const a = document.createElement('a');
-        a.href = `http://localhost:3001${result.downloadUrl}`;
+        a.href = `${serverBaseUrl}${result.downloadUrl}`;
         a.download = file.name.replace(/\.(ppt|pptx)$/, '.pdf');
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        
+        // Handle mobile devices differently
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            // For mobile devices, open in new tab
+            window.open(a.href, '_blank');
+        } else {
+            // For desktop, trigger download
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
 
         progress.style.width = '100%';
         showSuccess('Conversion completed! File downloaded.');
