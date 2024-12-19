@@ -10,9 +10,32 @@ const progress = document.getElementById('progress');
 const statusMessage = document.getElementById('statusMessage');
 
 // Server configuration
-const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:10000/convert'
-    : 'https://server-pv39.onrender.com/convert';
+const SERVER_URL = 'https://server-pv39.onrender.com';
+
+// Add health check before conversion
+async function checkServerHealth() {
+    try {
+        console.log('Checking server health...');
+        const response = await fetch(`${SERVER_URL}/health`, {
+            method: 'GET',
+            mode: 'cors',
+            headers: {
+                'Accept': 'application/json',
+            }
+        });
+        
+        console.log('Health check response:', response.status);
+        if (!response.ok) {
+            throw new Error('Server is not responding');
+        }
+        const data = await response.json();
+        console.log('Server health:', data);
+        return true;
+    } catch (error) {
+        console.error('Server health check failed:', error);
+        return false;
+    }
+}
 
 // Handle file drop and click to upload
 fileInput.addEventListener('change', function(e) {
@@ -81,14 +104,18 @@ convertButton.addEventListener('click', async function() {
     convertButton.disabled = true;
     progress.style.width = '50%';
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-        console.log('Starting conversion request for:', file.name);
-        console.log('Server URL:', SERVER_URL);
-        
-        const response = await fetch(SERVER_URL, {
+        // Check server health first
+        const isServerHealthy = await checkServerHealth();
+        if (!isServerHealthy) {
+            throw new Error('Server is not available. Please try again later.');
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        console.log('Sending request to:', `${SERVER_URL}/convert`);
+        const response = await fetch(`${SERVER_URL}/convert`, {
             method: 'POST',
             body: formData,
             mode: 'cors',
@@ -150,7 +177,7 @@ convertButton.addEventListener('click', async function() {
         showSuccess('Conversion completed! File downloaded.');
 
     } catch (error) {
-        console.error('Detailed conversion error:', error);
+        console.error('Conversion error:', error);
         showError(`Error: ${error.message}`);
     } finally {
         setTimeout(() => {
