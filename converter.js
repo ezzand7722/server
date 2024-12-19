@@ -11,7 +11,7 @@ const statusMessage = document.getElementById('statusMessage');
 
 // Server configuration
 const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3001/convert'
+    ? 'http://localhost:10000/convert'
     : 'https://server-pv39.onrender.com/convert';
 
 // Handle file drop and click to upload
@@ -89,7 +89,10 @@ convertButton.addEventListener('click', async function() {
             method: 'POST',
             body: formData,
             mode: 'cors',
-            credentials: 'same-origin'
+            credentials: 'omit',
+            headers: {
+                'Accept': 'application/json',
+            }
         });
 
         if (!response.ok) {
@@ -104,7 +107,7 @@ convertButton.addEventListener('click', async function() {
 
         // Update server base URL
         const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:3001'
+            ? 'http://localhost:10000'
             : 'https://server-pv39.onrender.com';
 
         // Create download link
