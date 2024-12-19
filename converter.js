@@ -11,7 +11,7 @@ const statusMessage = document.getElementById('statusMessage');
 
 // Server configuration
 const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000/convert'
+    ? 'http://localhost:1000/convert'
     : 'https://your-hosted-domain.com/convert';  // Replace with your actual hosted domain
 
 // Handle file drop and click to upload
@@ -102,7 +102,7 @@ convertButton.addEventListener('click', async function() {
 
         // Update download URL construction
         const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:3000'
+            ? 'http://localhost:1000'
             : 'https://your-hosted-domain.com';  // Replace with your actual hosted domain
             
         const downloadUrl = `${serverBaseUrl}${result.downloadUrl}`;
