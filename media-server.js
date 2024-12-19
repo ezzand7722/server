@@ -16,7 +16,9 @@ app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
-    credentials: false
+    credentials: false,
+    preflightContinue: true,
+    optionsSuccessStatus: 204
 }));
 
 // Configure storage
@@ -111,37 +113,50 @@ app.post('/merge', upload.fields([
 
 // Update conversion endpoint
 app.post('/convert', upload.single('file'), async (req, res) => {
+    console.log('Received conversion request');
+    
     if (!req.file) {
+        console.log('No file received');
         return res.status(400).json({ error: 'No file provided' });
     }
 
+    console.log('File received:', req.file.originalname);
     const inputPath = req.file.path;
     const outputFileName = `converted-${Date.now()}.pdf`;
     const outputPath = path.join(__dirname, 'processed', outputFileName);
 
     try {
-        // Read the file
+        console.log('Reading file...');
         const file = await fs.promises.readFile(inputPath);
         
-        // Convert to PDF
+        console.log('Converting to PDF...');
         const pdfBuffer = await convertAsync(file, '.pdf', undefined);
         
-        // Write the converted file
+        console.log('Writing converted file...');
         await fs.promises.writeFile(outputPath, pdfBuffer);
 
-        // Cleanup input file
+        console.log('Cleaning up input file...');
         fs.unlink(inputPath, err => {
             if (err) console.error('Error cleaning up:', err);
         });
 
+        console.log('Conversion successful');
         res.json({
             success: true,
             downloadUrl: `/processed/${outputFileName}`,
             message: 'File converted successfully'
         });
     } catch (error) {
-        console.error('Conversion error:', error);
-        res.status(500).json({ error: 'Failed to convert file: ' + error.message });
+        console.error('Detailed conversion error:', {
+            error: error.message,
+            stack: error.stack,
+            inputPath,
+            outputPath
+        });
+        res.status(500).json({ 
+            error: 'Failed to convert file',
+            details: error.message
+        });
     }
 });
 
