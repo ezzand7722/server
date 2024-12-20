@@ -12,7 +12,7 @@ const statusMessage = document.getElementById('statusMessage');
 // Server configuration
 const SERVER_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:10000/convert'
-    : 'https://server-gamma-lac.vercel.app/convert';  // Primary Vercel domain
+    : 'https://server-gamma-lac.vercel.app/convert';  // Vercel domain
 
 // Handle file drop and click to upload
 fileInput.addEventListener('change', function(e) {
@@ -85,13 +85,23 @@ convertButton.addEventListener('click', async function() {
     formData.append('file', file);
 
     try {
+        console.log('Sending request to:', SERVER_URL); // Debug log
         const response = await fetch(SERVER_URL, {
             method: 'POST',
-            body: formData
+            body: formData,
+            mode: 'cors',
+            credentials: 'omit',
+            headers: {
+                'Accept': 'application/json',
+            }
         });
 
+        console.log('Response status:', response.status); // Debug log
+
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('Server response:', errorText); // Debug log
+            throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
 
         const result = await response.json();
@@ -103,7 +113,7 @@ convertButton.addEventListener('click', async function() {
         // Update download URL construction
         const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:10000'
-            : 'https://server-gamma-lac.vercel.app';  // Primary Vercel domain
+            : 'https://server-gamma-lac.vercel.app';  // Vercel domain
             
         const downloadUrl = `${serverBaseUrl}${result.downloadUrl}`;
         
