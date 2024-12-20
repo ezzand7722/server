@@ -10,9 +10,9 @@ const progress = document.getElementById('progress');
 const statusMessage = document.getElementById('statusMessage');
 
 // Server configuration
-const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+const SERVER_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:10000/convert'
-    : 'https://server-pv39.onrender.com/convert';  // Update with actual hosted domain
+    : 'https://server-gamma-lac.vercel.app/convert';  // Primary Vercel domain
 
 // Handle file drop and click to upload
 fileInput.addEventListener('change', function(e) {
@@ -103,7 +103,7 @@ convertButton.addEventListener('click', async function() {
         // Update download URL construction
         const serverBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:10000'
-            : 'https://server-pv39.onrender.com';  // Update with actual hosted domain
+            : 'https://server-gamma-lac.vercel.app';  // Primary Vercel domain
             
         const downloadUrl = `${serverBaseUrl}${result.downloadUrl}`;
         
