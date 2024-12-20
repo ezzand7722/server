@@ -16,9 +16,12 @@ app.use(cors({
     origin: [
         'http://localhost:10000',
         'http://127.0.0.1:10000',
-        'https://server-pv39.onrender.com',
         'http://127.0.0.1:5500',
-        'http://localhost:5500'
+        'http://localhost:5500',
+        'https://jolly-praline-a41a4f.netlify.app',
+        'https://server-gamma-lac.vercel.app',
+        'https://server-git-main-ezzand7722s-projects.vercel.app',
+        'https://server-kyocqztau-ezzand7722s-projects.vercel.app'
     ],
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
