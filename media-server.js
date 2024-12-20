@@ -19,14 +19,16 @@ app.use(cors({
         'http://127.0.0.1:5500',
         'http://localhost:5500',
         'https://jolly-praline-a41a4f.netlify.app',
-        'https://server-gamma-lac.vercel.app',
-        'https://server-git-main-ezzand7722s-projects.vercel.app',
-        'https://server-kyocqztau-ezzand7722s-projects.vercel.app'
+        'https://server-gamma-lac.vercel.app'
     ],
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
-    credentials: false
+    credentials: false,
+    optionsSuccessStatus: 200
 }));
+
+// Add this before your routes
+app.options('*', cors());
 
 // Configure storage
 const storage = multer.diskStorage({
